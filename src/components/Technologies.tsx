@@ -38,11 +38,11 @@ const technologies = [
     logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg",
   },
   {
-    name: "ECR & EC2 en AWS",
+    name: "ECR ECS & Fargate en AWS",
     logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg",
   },
   {
-    name: "IaC Terraform Rocio",
+    name: "IaC Terraform",
     logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/terraform/terraform-original.svg",
   }
 ];
