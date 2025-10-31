@@ -13,7 +13,9 @@ jobs:
       VERSION: latest
       DOCKER_USER: ${{ secrets.DOCKERHUB_USERNAME }}
       ECR_REPOSITORY_NAME: proyectobase-runtime
-      
+      DOCKER_RUNTIME_REPO: proyectobase-runtime2
+      DOCKER_BUILDER_REPO: proyectobase-builder2
+
     steps:
       - name: 📥 Checkout repo
         uses: actions/checkout@v3
@@ -72,8 +74,8 @@ jobs:
           target: builder
           push: true
           tags: |
-            ${{ env.DOCKER_USER }}/proyectobase-builder:${{ env.VERSION }}
-            ${{ env.DOCKER_USER }}/proyectobase-builder:latest
+            ${{ env.DOCKER_USER }}/${{ env.DOCKER_BUILDER_REPO }}:${{ env.VERSION }}
+            ${{ env.DOCKER_USER }}/${{ env.DOCKER_BUILDER_REPO }}:latest
 
       - name: ⚙️ Build & Push RUNTIME image (Dual Push)
         uses: docker/build-push-action@v5
@@ -83,40 +85,22 @@ jobs:
           target: production
           push: true
           tags: |
-            ${{ env.DOCKER_USER }}/proyectobase-runtime:${{ env.VERSION }}
-            ${{ env.DOCKER_USER }}/proyectobase-runtime:latest
+            ${{ env.DOCKER_USER }}/${{ env.DOCKER_RUNTIME_REPO }}:${{ env.VERSION }}
+            ${{ env.DOCKER_USER }}/${{ env.DOCKER_RUNTIME_REPO }}:latest
             ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NAME }}:${{ env.VERSION }}
             ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NAME }}:latest
+
 
       - name: 🧹 Clean up dangling images
         run: docker image prune -f
 
-      # --- 🚀 PASO FINAL: DEPLOY A EC2 VÍA SSM CLI ---
-      - name: 🚀 Deploy to EC2 via SSM Run Command (CLI)
-        id: deploy_ssm
+      - name: 🚀 Force ECS Service Redeploy (Fargate)
         run: |
-          echo "Sending deployment commands to EC2 instance..."
-          
-          INSTANCE_ID="${{ secrets.AWS_INSTANCE_ID }}"
-          REGION="${{ secrets.AWS_REGION }}"
-          ACCOUNT_ID="${{ secrets.AWS_ACCOUNT_ID }}"
-          ECR_REPO_URL="$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/proyectobase-runtime:latest"
-          cat > ssm_params.json <<EOF
-          {
-            "commands": [
-              "sudo docker ps -q | xargs -r sudo docker stop || true",
-              "sudo docker ps -aq | xargs -r sudo docker rm || true",
-              "sudo aws ecr get-login-password --region $REGION | sudo docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com",
-              "sudo docker pull $ECR_REPO_URL",
-              "sudo docker run -d -p 80:80 $ECR_REPO_URL",
-              "echo 'Deployment finished!'"
-            ]
-          }
-          EOF
+          aws ecs update-service \
+            --cluster ${{ secrets.ECS_CLUSTER_NAME }} \
+            --service ${{ secrets.ECS_SERVICE_NAME }} \
+            --force-new-deployment \
+            --region ${{ secrets.AWS_REGION }}
 
-          aws ssm send-command \
-            --instance-ids "$INSTANCE_ID" \
-            --document-name "AWS-RunShellScript" \
-            --parameters file://ssm_params.json \
-            --region "$REGION"
 
+      
