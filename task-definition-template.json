@@ -7,7 +7,7 @@
   "executionRoleArn": "arn:aws:iam::842944705828:role/ecsTaskExecutionRole",
   "containerDefinitions": [
     {
-      "name": "proyectobase-container",
+      "name": "app",
       "image": "<IMAGE_URI>",
       "portMappings": [
         {
