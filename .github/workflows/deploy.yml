@@ -44,7 +44,7 @@ jobs:
 
       - name: 🐳 Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-        
+
       - name: ⚙️ Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -55,7 +55,7 @@ jobs:
       - name: 🐳 Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-        
+
       - name: 🐳 Log in to Docker Hub
         uses: docker/login-action@v2
         with:
@@ -89,12 +89,23 @@ jobs:
       - name: 🧹 Clean up dangling images
         run: docker image prune -f
 
+      - name: 🔍 Get image digest from ECR
+        id: ecr-digest
+        run: |
+          DIGEST=$(aws ecr describe-images \
+            --repository-name ${{ env.ECR_REPOSITORY_NAME }} \
+            --image-ids imageTag=${{ github.run_number }} \
+            --query 'imageDetails[0].imageDigest' \
+            --output text)
+          
+          IMAGE_URI="${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NAME }}@${DIGEST}"
+          echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
+          echo "Usando imagen con digest: $IMAGE_URI"
+
       - name: 🧩 Replace image URI in task definition
         run: |
-          IMAGE_URI=$(echo "${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NAME }}:${{ github.run_number }}" | tr -d '[:space:]')
-          echo "Usando imagen: $IMAGE_URI"
-          sed "s|<IMAGE_URI>|$IMAGE_URI|" task-definition-template.json > task-definition.json
-      
+          sed "s|<IMAGE_URI>|${{ env.IMAGE_URI }}|" task-definition-template.json > task-definition.json
+
       - name: 🧾 Debug generated task definition
         run: cat task-definition.json
 
@@ -113,4 +124,5 @@ jobs:
             --cluster ${{ secrets.ECS_CLUSTER_NAME }} \
             --service ${{ secrets.ECS_SERVICE_NAME }} \
             --task-definition ${{ env.TASK_ARN }} \
-            --region ${{ secrets.AWS_REGION }}
+            --region ${{ secrets.AWS_REGION }} \
+            --force-new-deployment
