@@ -8,7 +8,7 @@
   "containerDefinitions": [
     {
       "name": "proyectobase-container",
-      "image": "<IMAGE_URI_PLACEHOLDER>",
+      "image": "<IMAGE_URI>",
       "portMappings": [
         {
           "containerPort": 80,

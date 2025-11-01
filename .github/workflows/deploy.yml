@@ -91,7 +91,13 @@ jobs:
 
       - name: 🧩 Replace image URI in task definition
         run: |
-          sed "s|<IMAGE_URI>|${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NAME }}:${{ github.run_number }}|" task-definition-template.json > task-definition.json
+          IMAGE_URI=$(echo "${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NAME }}:${{ github.run_number }}" | tr -d '[:space:]')
+          echo "Usando imagen: $IMAGE_URI"
+          sed "s|<IMAGE_URI>|$IMAGE_URI|" task-definition-template.json > task-definition.json
+      
+      - name: 🧾 Debug generated task definition
+        run: cat task-definition.json
+
 
       - name: 📝 Register new Task Definition
         id: register-task
