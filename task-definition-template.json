@@ -4,17 +4,25 @@
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "256",
   "memory": "512",
-  "executionRoleArn": "arn:aws:iam::<TU_ID>:role/ecsTaskExecutionRole",
+  "executionRoleArn": "arn:aws:iam::842944705828:role/ecsTaskExecutionRole",
   "containerDefinitions": [
     {
-      "name": "app",
-      "image": "<IMAGE_URI>",
+      "name": "proyectobase-container",
+      "image": "<IMAGE_URI_PLACEHOLDER>",
       "portMappings": [
         {
           "containerPort": 80,
           "protocol": "tcp"
         }
       ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/proyectobase",
+          "awslogs-region": "us-east-2",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
       "essential": true
     }
   ]
