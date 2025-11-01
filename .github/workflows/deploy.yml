@@ -98,7 +98,6 @@ jobs:
       - name: 🧾 Debug generated task definition
         run: cat task-definition.json
 
-
       - name: 📝 Register new Task Definition
         id: register-task
         run: |
