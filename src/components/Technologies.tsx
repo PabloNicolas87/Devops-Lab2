@@ -1,6 +1,6 @@
-import React from "react";
+type Tech = { name: string; logo: string }
 
-const technologies = [
+const technologies: Tech[] = [
   {
     name: "React",
     logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg",
@@ -42,7 +42,7 @@ const technologies = [
     logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg",
   },
   {
-    name: "IaC Terraform",
+    name: "IaC Terraform Nuevo",
     logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/terraform/terraform-original.svg",
   }
 ];
@@ -51,7 +51,7 @@ interface TechnologiesProps {
   className?: string;
 }
 
-const Technologies: React.FC<TechnologiesProps> = ({ className = '' }) => {
+const Technologies = ({ className = '' }: TechnologiesProps) => {
   return (
     <section className={`py-10 bg-gray-50 dark:bg-gray-900 ${className}`}>
       <div className="container mx-auto px-4">
