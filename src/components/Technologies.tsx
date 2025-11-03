@@ -42,7 +42,7 @@ const technologies: Tech[] = [
     logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg",
   },
   {
-    name: "IaC Terraform Nuevo",
+    name: "IaC Terraform Nuevo 2",
     logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/terraform/terraform-original.svg",
   }
 ];
