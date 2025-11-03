@@ -12,7 +12,7 @@ jobs:
     env:
       VERSION: latest
       DOCKER_USER: ${{ secrets.DOCKERHUB_USERNAME }}
-      ECR_REPOSITORY_NAME: proyectobase-runtime
+      ECR_REPOSITORY_NAME: proyectobase
       DOCKER_RUNTIME_REPO: proyectobase-runtime2
       DOCKER_BUILDER_REPO: proyectobase-builder2
 
@@ -83,8 +83,8 @@ jobs:
           tags: |
             ${{ env.DOCKER_USER }}/${{ env.DOCKER_RUNTIME_REPO }}:${{ github.run_number }}
             ${{ env.DOCKER_USER }}/${{ env.DOCKER_RUNTIME_REPO }}:latest
-            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NAME }}:${{ github.run_number }}
-            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NAME }}:latest
+            ${{ steps.login-ecr.outputs.registry }}/proyectobase:${{ github.run_number }}
+            ${{ steps.login-ecr.outputs.registry }}/proyectobase:latest
 
       - name: 🧹 Clean up dangling images
         run: docker image prune -f
