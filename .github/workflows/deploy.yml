@@ -99,15 +99,12 @@ jobs:
             --output text)
           
           IMAGE_URI="${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_NAME }}@${DIGEST}"
-          # Export for subsequent shell steps
           echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
-          # Also expose as a step output so later steps can reference it as an outputs variable
           echo "image_uri=$IMAGE_URI" >> $GITHUB_OUTPUT
           echo "Usando imagen con digest: $IMAGE_URI"
 
       - name: 🧩 Replace image URI in task definition
         run: |
-          # Replace using the explicit step output from ecr-digest to avoid race conditions
           sed "s|<IMAGE_URI>|${{ steps.ecr-digest.outputs.image_uri }}|" task-definition-template.json > task-definition.json
 
       - name: 🧾 Debug generated task definition
@@ -120,7 +117,6 @@ jobs:
             --cli-input-json file://task-definition.json \
             --query "taskDefinition.taskDefinitionArn" \
             --output text)
-          # Export both to the shell env and as a step output for reliable consumption by later steps
           echo "TASK_ARN=$TASK_ARN" >> $GITHUB_ENV
           echo "task_arn=$TASK_ARN" >> $GITHUB_OUTPUT
 
@@ -135,14 +131,24 @@ jobs:
 
       - name: 🔎 Validate registered task definition
         run: |
-          echo "Inspecting registered task definition: ${{ steps.register-task.outputs.task_arn }}"
-          aws ecs describe-task-definition --task-definition ${{ steps.register-task.outputs.task_arn }} --query 'taskDefinition.{family:family,revision:revision,containerDefinitions:containerDefinitions}' --output json
+          aws ecs describe-task-definition \
+            --task-definition ${{ steps.register-task.outputs.task_arn }} \
+            --query 'taskDefinition.{family:family,revision:revision,containerDefinitions:containerDefinitions}' \
+            --output json
 
       - name: ⏳ Wait for service to stabilize
         run: |
           echo "Waiting for ECS service to become stable..."
-          aws ecs wait services-stable --cluster ${{ secrets.ECS_CLUSTER_NAME }} --services ${{ secrets.ECS_SERVICE_NAME }} --region ${{ secrets.AWS_REGION }}
+          aws ecs wait services-stable \
+            --cluster ${{ secrets.ECS_CLUSTER_NAME }} \
+            --services ${{ secrets.ECS_SERVICE_NAME }} \
+            --region ${{ secrets.AWS_REGION }}
 
       - name: 📊 Check service tasks (summary)
         run: |
-          aws ecs list-tasks --cluster ${{ secrets.ECS_CLUSTER_NAME }} --service-name ${{ secrets.ECS_SERVICE_NAME }} --desired-status RUNNING --output json
+          aws ecs list-tasks \
+            --cluster ${{ secrets.ECS_CLUSTER_NAME }} \
+            --service-name ${{ secrets.ECS_SERVICE_NAME }} \
+            --desired-status RUNNING \
+            --output json
+
