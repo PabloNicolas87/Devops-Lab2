@@ -1,13 +1,13 @@
 {
-  "family": "proyectobase-task",
+  "family": "lab2-task",
   "networkMode": "awsvpc",
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "256",
   "memory": "512",
-  "executionRoleArn": "arn:aws:iam::842944705828:role/ecsTaskExecutionRole",
+  "executionRoleArn": "arn:aws:iam::<YOUR_ACCOUNT_ID>:role/lab2-ecsTaskExecutionRole",
   "containerDefinitions": [
     {
-      "name": "proyectobase",
+      "name": "lab2",
       "image": "<IMAGE_URI>",
       "portMappings": [
         {
@@ -18,7 +18,7 @@
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/proyectobase",
+          "awslogs-group": "/ecs/lab2",
           "awslogs-region": "us-east-2",
           "awslogs-stream-prefix": "ecs"
         }
@@ -27,3 +27,4 @@
     }
   ]
 }
+
