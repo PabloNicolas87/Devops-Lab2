@@ -4,7 +4,7 @@
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "256",
   "memory": "512",
-  "executionRoleArn": "arn:aws:iam::<YOUR_ACCOUNT_ID>:role/lab2-ecsTaskExecutionRole",
+  "executionRoleArn": "arn:aws:iam::842944705828:role/lab2-ecsTaskExecutionRole",
   "containerDefinitions": [
     {
       "name": "lab2",
